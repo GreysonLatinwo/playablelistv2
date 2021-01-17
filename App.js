@@ -17,14 +17,13 @@ import {
 } from 'react-native';
 import {
   Header,
-  Playlist,
   LearnMoreLinks,
   Colors,
   DebugInstructions,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 import { SearchBar } from 'react-native-elements';
-
+import Playlist from './Playlist.js'
 const App: () => React$Node = () => {
   return (
     <>
