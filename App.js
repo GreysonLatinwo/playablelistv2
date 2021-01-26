@@ -24,6 +24,51 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import { SearchBar } from 'react-native-elements';
 import Playlist from './Playlist.js'
+import WalletConnect from "@walletconnect/client";
+import QRCodeModal from "@walletconnect/qrcode-modal";
+
+var connected2WalletConnect = false;
+
+const connect2WalletConnect = () => {
+  const connector = new WalletConnect({
+    bridge: "https://bridge.walletconnect.org", // Required
+    qrcodeModal: QRCodeModal,
+  });
+
+  // Check if connection is already established
+  if (!connector.connected) {
+    // create new session
+    connector.createSession();
+  }
+
+  // Subscribe to connection events
+  connector.on("connect", (error, payload) => {
+    if (error) {
+      throw error;
+    }
+
+    // Get provided accounts and chainId
+    const { accounts, chainId } = payload.params[0];
+  });
+
+  connector.on("session_update", (error, payload) => {
+    if (error) {
+      throw error;
+    }
+
+    // Get updated accounts and chainId
+    const { accounts, chainId } = payload.params[0];
+  });
+
+  connector.on("disconnect", (error, payload) => {
+    if (error) {
+      throw error;
+    }
+
+    // Delete connector
+  });
+}
+
 const App: () => React$Node = () => {
   return (
     <>
@@ -43,21 +88,27 @@ const App: () => React$Node = () => {
               <Text style={styles.footer}>Engine: Hermes</Text>
             </View>
           )}
-          <View style={styles.body}>
-            <Text style={styles.sectionTitle}>Playlist 0xA54B25a1EA558512DEF1adD7b2b301c16051C065</Text>
-            <Playlist />
-            <Image
-              style={styles.tinyLogo}
-              source={{
-                uri: 'https://i.scdn.co/image/ab67616d0000b273610d7118f18ce95848e43470',
-              }}
-            />
-            <Text style={styles.title}>{'Burn The Hoods\n'}
-              <Text style={styles.artist}>
-                {'Ski Mask The Slump God'}
+          {connected2WalletConnect ? (
+            <View style={styles.body}>
+              <Text style={styles.sectionTitle}>Playlist 0xA54B25a1EA558512DEF1adD7b2b301c16051C065</Text>
+              <Playlist />
+              <Image
+                style={styles.tinyLogo}
+                source={{
+                  uri: 'https://i.scdn.co/image/ab67616d0000b273610d7118f18ce95848e43470',
+                }}
+              />
+              <Text style={styles.title}>{'Burn The Hoods\n'}
+                <Text style={styles.artist}>
+                  {'Ski Mask The Slump God'}
+                </Text>
               </Text>
-            </Text>
-          </View>
+            </View>) : (
+              <View style={styles.body}>
+                <Button onPress={connect2WalletConnect}>{'Connect To WalletConnect'}</Button>
+              </View>
+            )
+          }
         </ScrollView>
       </SafeAreaView>
     </>
